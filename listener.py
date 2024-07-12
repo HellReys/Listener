@@ -19,6 +19,7 @@ class Listener:
         self.connection.send(json_data)
 
     def reliable_receive(self):
+        json_data =""
         while True:
             try:
                 json_data = json_data + self.connection.recv(1024)
